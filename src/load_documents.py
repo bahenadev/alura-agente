@@ -1,12 +1,27 @@
 from pathlib import Path
 from pypdf import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+import re
 
 # Ruta a la carpeta donde guardaste los PDFs del proyecto.
 # Path("docs") significa: busca una carpeta llamada "docs"
 # dentro del lugar donde estés ejecutando este script.
 DOCS_PATH = Path("docs")
 
+def clean_text(text: str) -> str:
+    # Reemplaza saltos de línea múltiples por uno solo
+    text = re.sub(r"\n{2,}", "\n", text)
+
+    # Reemplaza muchos espacios seguidos por un solo espacio
+    text = re.sub(r"[ \t]{2,}", " ", text)
+
+    # Quita espacios al inicio y al final de cada línea
+    text = "\n".join(line.strip() for line in text.splitlines())
+
+    # Vuelve a quitar líneas vacías repetidas
+    text = re.sub(r"\n{2,}", "\n", text)
+
+    return text.strip()
 
 def extract_text_from_pdf(pdf_path: Path) -> str:
     # Crea un lector de PDF usando la ruta que recibe la función.
@@ -31,7 +46,8 @@ def extract_text_from_pdf(pdf_path: Path) -> str:
     # Une todos los textos de las páginas en un solo string.
     # "\n" pone un salto de línea entre cada página.
     # .strip() quita espacios o saltos de línea sobrantes al inicio y al final.
-    return "\n".join(text_parts).strip()
+    full_text = "\n".join(text_parts).strip()
+    return clean_text(full_text)
 
 
 def load_all_documents():
