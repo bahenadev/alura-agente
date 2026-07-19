@@ -1,5 +1,6 @@
 from pathlib import Path
 from pypdf import PdfReader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # Ruta a la carpeta donde guardaste los PDFs del proyecto.
 # Path("docs") significa: busca una carpeta llamada "docs"
@@ -67,6 +68,38 @@ def load_all_documents():
     # Devuelve la lista completa de documentos cargados.
     return documents
 
+def chunk_documents(documents):
+    # Creamos el divisor de texto.
+    # chunk_size=1000 significa que cada chunk tendrá aprox. 1000 caracteres.
+    # chunk_overlap=200 significa que cada chunk comparte 200 caracteres
+    # con el chunk anterior para no perder contexto.
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200
+    )
+
+    # Aquí guardaremos todos los chunks generados.
+    chunks = []
+
+    # Recorremos cada documento cargado.
+    for doc in documents:
+        # Dividimos el texto completo del documento en varios chunks.
+        split_texts = splitter.split_text(doc["text"])
+
+        # Recorremos cada chunk generado.
+        for i, chunk_text in enumerate(split_texts):
+            # Guardamos el chunk junto con su metadata.
+            chunks.append({
+                "content": chunk_text,
+                "metadata": {
+                    "source": doc["source"],  # nombre del PDF
+                    "chunk_id": i             # número del chunk en ese PDF
+                }
+            })
+
+    # Regresamos la lista completa de chunks.
+    return chunks
+
 
 if __name__ == "__main__":
     # Ejecuta la función principal para cargar todos los documentos.
@@ -74,3 +107,12 @@ if __name__ == "__main__":
 
     # Imprime cuántos documentos se cargaron en total.
     print(f"\nTotal de documentos cargados: {len(documents)}")
+    
+    chunks = chunk_documents(documents)
+    print(f"Total de chunks creados: {len(chunks)}")
+    print("=== 3 chunks de ejemplo ===")
+    for chunk in chunks[:3]:
+        print(f"Fuente: {chunk['metadata']['source']}")
+        print(f"Chunk ID: {chunk['metadata']['chunk_id']}")
+        print(chunk["content"][:500])  # solo mostramos los primeros 500 caracteres
+        print("-" * 80)

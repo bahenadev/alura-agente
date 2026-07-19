@@ -7,3 +7,4 @@ chromadb
 python-dotenv
 cohere
 langchain-cohere
+langchain-text-splitters
