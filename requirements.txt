@@ -8,3 +8,4 @@ python-dotenv
 cohere
 langchain-cohere
 langchain-text-splitters
+langchain-chroma
