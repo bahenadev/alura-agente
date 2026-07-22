@@ -56,15 +56,14 @@ with tab1:
     st.markdown(
         """
         <style>
-        .chat-scroll {
+        .st-key-chat_area {
             max-height: 55vh;
             min-height: 200px;
             overflow-y: auto;
-            padding-right: 0.5rem;
-            margin-bottom: 0.5rem;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            padding: 0.75rem;
+            padding: 0.75rem 0.75rem 0;
+            margin-bottom: 0.5rem;
         }
         </style>
         """,
@@ -79,32 +78,29 @@ with tab1:
     with col_boton:
         st.button("Limpiar", on_click=limpiar_historial, use_container_width=True)
 
-    st.markdown('<div class="chat-scroll">', unsafe_allow_html=True)
+    with st.container(key="chat_area"):
+        for mensaje in st.session_state.historial:
+            with st.chat_message(mensaje["role"]):
+                st.markdown(mensaje["content"])
 
-    for mensaje in st.session_state.historial:
-        with st.chat_message(mensaje["role"]):
-            st.markdown(mensaje["content"])
+        pregunta = st.chat_input("Escribe tu pregunta")
 
-    pregunta = st.chat_input("Escribe tu pregunta")
+        if pregunta:
+            st.session_state.historial.append({"role": "user", "content": pregunta})
 
-    if pregunta:
-        st.session_state.historial.append({"role": "user", "content": pregunta})
+            with st.chat_message("user"):
+                st.markdown(pregunta)
 
-        with st.chat_message("user"):
-            st.markdown(pregunta)
+            with st.chat_message("assistant"):
+                with st.spinner("Buscando respuesta...", show_time=True):
+                    try:
+                        respuesta = responder_pregunta(pregunta)
+                    except Exception as e:
+                        respuesta = f"Ocurrió un error al generar la respuesta: {e}"
 
-        with st.chat_message("assistant"):
-            with st.spinner("Buscando respuesta...", show_time=True):
-                try:
-                    respuesta = responder_pregunta(pregunta)
-                except Exception as e:
-                    respuesta = f"Ocurrió un error al generar la respuesta: {e}"
+                st.markdown(respuesta)
 
-            st.markdown(respuesta)
-
-        st.session_state.historial.append({"role": "assistant", "content": respuesta})
-
-    st.markdown("</div>", unsafe_allow_html=True)
+            st.session_state.historial.append({"role": "assistant", "content": respuesta})
 
 with tab2:
     st.write("Aquí podrás gestionar tus archivos PDF.")
