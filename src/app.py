@@ -1,11 +1,18 @@
 import streamlit as st
 from agent import responder_pregunta
-from file_manager import guardar_archivos_subidos, listar_archivos_pdf
+from file_manager import (
+    guardar_archivos_subidos,
+    listar_archivos_pdf,
+    eliminar_archivo_pdf
+)
 
 st.set_page_config(page_title="Agente RAG", page_icon="🤖", layout="centered")
 
 if "historial" not in st.session_state:
     st.session_state.historial = []
+
+if "mensaje_documentos" not in st.session_state:
+    st.session_state.mensaje_documentos = ""
 
 
 def limpiar_historial():
@@ -61,15 +68,30 @@ with tab2:
         archivos_guardados = guardar_archivos_subidos(uploaded_files)
 
         if archivos_guardados:
-            st.success("Archivos guardados correctamente:")
-            for nombre in archivos_guardados:
-                st.markdown(f"- {nombre}")
+            st.session_state.mensaje_documentos = "Archivos guardados correctamente."
+
+    if st.session_state.mensaje_documentos:
+        st.success(st.session_state.mensaje_documentos)
 
     archivos_en_disco = listar_archivos_pdf()
 
     st.subheader("Archivos disponibles")
     if archivos_en_disco:
         for archivo in archivos_en_disco:
-            st.markdown(f"- {archivo.name}")
+            col_nombre, col_boton = st.columns([5, 1], vertical_alignment="center")
+
+            with col_nombre:
+                st.markdown(f"**{archivo.name}**")
+
+            with col_boton:
+                if st.button("Eliminar", key=f"eliminar_{archivo.name}"):
+                    eliminado = eliminar_archivo_pdf(archivo.name)
+
+                    if eliminado:
+                        st.session_state.mensaje_documentos = f"Archivo eliminado: {archivo.name}"
+                    else:
+                        st.session_state.mensaje_documentos = f"No se pudo eliminar: {archivo.name}"
+
+                    st.rerun()
     else:
         st.info("No hay archivos guardados en la carpeta docs.")

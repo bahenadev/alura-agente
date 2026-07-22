@@ -27,3 +27,14 @@ def guardar_archivos_subidos(uploaded_files):
 def listar_archivos_pdf():
     asegurar_directorio_docs()
     return sorted(DOCS_DIR.glob("*.pdf"))
+
+
+def eliminar_archivo_pdf(nombre_archivo):
+    asegurar_directorio_docs()
+    ruta_archivo = DOCS_DIR / nombre_archivo
+
+    if ruta_archivo.exists() and ruta_archivo.is_file():
+        ruta_archivo.unlink()
+        return True
+
+    return False
