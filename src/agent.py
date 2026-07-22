@@ -69,7 +69,7 @@ Pregunta:
 
 
 if __name__ == "__main__":
-    pregunta = "¿Qué tecnologías usa el Chapter de Back-end?"
+    pregunta = "¿Cuál es tu comida favorita?"
     respuesta = responder_pregunta(pregunta)
 
     print("\nRespuesta:\n")
