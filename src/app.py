@@ -53,6 +53,24 @@ st.title("Agente RAG")
 tab1, tab2 = st.tabs(["Chat", "Documentos"])
 
 with tab1:
+    st.markdown(
+        """
+        <style>
+        .chat-scroll {
+            max-height: 55vh;
+            min-height: 200px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     col_texto, col_boton = st.columns([5, 1], vertical_alignment="bottom")
 
     with col_texto:
@@ -61,9 +79,13 @@ with tab1:
     with col_boton:
         st.button("Limpiar", on_click=limpiar_historial, use_container_width=True)
 
+    st.markdown('<div class="chat-scroll">', unsafe_allow_html=True)
+
     for mensaje in st.session_state.historial:
         with st.chat_message(mensaje["role"]):
             st.markdown(mensaje["content"])
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
     pregunta = st.chat_input("Escribe tu pregunta")
 
