@@ -24,7 +24,8 @@ def cancelar_confirmacion_embeddings():
 
 
 def docs_page():
-    st.write("Aquí podrás gestionar tus archivos PDF.")
+    st.title("Asistente RAG")
+    st.subheader("Documentos")
 
     uploaded_files = st.file_uploader(
         "📂 Selecciona o arrastra uno o varios archivos PDF",
@@ -64,36 +65,38 @@ def docs_page():
 
     archivos_en_disco = listar_archivos_pdf()
 
-    st.subheader("Archivos disponibles")
+    st.write("Archivos disponibles")
 
-    if archivos_en_disco:
-        for archivo in archivos_en_disco:
-            col_nombre, col_boton = st.columns(
-                [5, 1], vertical_alignment="center"
-            )
+    docs_box = st.container(height=300, border=True)
+    with docs_box:
+        if archivos_en_disco:
+            for archivo in archivos_en_disco:
+                col_nombre, col_boton = st.columns(
+                    [5, 1], vertical_alignment="center"
+                )
 
-            with col_nombre:
-                st.markdown(f"**{archivo.name}**")
+                with col_nombre:
+                    st.markdown(f"**{archivo.name}**")
 
-            with col_boton:
-                if st.button("Eliminar", key=f"eliminar_{archivo.name}"):
-                    eliminado = eliminar_archivo_pdf(archivo.name)
+                with col_boton:
+                    if st.button("Eliminar", key=f"eliminar_{archivo.name}"):
+                        eliminado = eliminar_archivo_pdf(archivo.name)
 
-                    if eliminado:
-                        st.session_state.mensaje_documentos = (
-                            f"Archivo eliminado: {archivo.name}"
-                        )
-                        st.session_state.tipo_mensaje_documentos = "success"
-                    else:
-                        st.session_state.mensaje_documentos = (
-                            f"No se pudo eliminar: {archivo.name}"
-                        )
-                        st.session_state.tipo_mensaje_documentos = "error"
+                        if eliminado:
+                            st.session_state.mensaje_documentos = (
+                                f"Archivo eliminado: {archivo.name}"
+                            )
+                            st.session_state.tipo_mensaje_documentos = "success"
+                        else:
+                            st.session_state.mensaje_documentos = (
+                                f"No se pudo eliminar: {archivo.name}"
+                            )
+                            st.session_state.tipo_mensaje_documentos = "error"
 
-                    st.session_state.mostrar_confirmacion_embeddings = False
-                    st.rerun()
-    else:
-        st.info("No hay archivos guardados en la carpeta docs.")
+                        st.session_state.mostrar_confirmacion_embeddings = False
+                        st.rerun()
+        else:
+            st.info("No hay archivos guardados en la carpeta docs.")
 
     st.divider()
     st.subheader("Embeddings")

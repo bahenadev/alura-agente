@@ -16,7 +16,12 @@ for key, default in [
     if key not in st.session_state:
         st.session_state[key] = default
 
-st.set_page_config(page_title="Agente RAG", page_icon="🤖", layout="centered")
+st.set_page_config(
+    page_title="Asistente RAG",
+    page_icon="🤖",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 
 pg = st.navigation(
     {

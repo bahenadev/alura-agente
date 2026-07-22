@@ -10,20 +10,17 @@ def limpiar_historial():
 def chat_page():
     st.title("Asistente RAG")
 
-    col_texto, col_boton = st.columns([5, 1], vertical_alignment="bottom")
-
-    with col_texto:
-        st.write("Haz una pregunta sobre los documentos internos.")
-
-    with col_boton:
+    header_col1, header_col2 = st.columns([5, 1], vertical_alignment="center")
+    with header_col1:
+        st.caption("Haz una pregunta sobre los documentos internos.")
+    with header_col2:
         st.button(
             "Limpiar",
             on_click=limpiar_historial,
             use_container_width=True,
         )
 
-    historial_box = st.container(height=500, border=True)
-
+    historial_box = st.container(height=520, border=True)
     with historial_box:
         for mensaje in st.session_state.historial:
             with st.chat_message(mensaje["role"]):
