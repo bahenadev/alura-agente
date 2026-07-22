@@ -3,9 +3,6 @@ from agent import responder_pregunta
 
 st.set_page_config(page_title="Agente RAG", page_icon="🤖", layout="centered")
 
-st.title("Agente RAG")
-st.write("Haz una pregunta sobre los documentos internos.")
-
 if "historial" not in st.session_state:
     st.session_state.historial = []
 
@@ -14,25 +11,39 @@ def limpiar_historial():
     st.session_state.historial = []
 
 
+st.title("Agente RAG")
+
 with st.sidebar:
     st.subheader("Controles")
     st.button("Limpiar conversación", on_click=limpiar_historial)
 
-for mensaje in st.session_state.historial:
-    with st.chat_message(mensaje["role"]):
-        st.markdown(mensaje["content"])
+tab1, tab2 = st.tabs(["Chat", "Documentos"])
 
-pregunta = st.chat_input("Escribe tu pregunta")
+with tab1:
+    st.write("Haz una pregunta sobre los documentos internos.")
 
-if pregunta:
-    st.session_state.historial.append({"role": "user", "content": pregunta})
+    chat_container = st.container()
 
-    with st.chat_message("user"):
-        st.markdown(pregunta)
+    with chat_container:
+        for mensaje in st.session_state.historial:
+            with st.chat_message(mensaje["role"]):
+                st.markdown(mensaje["content"])
 
-    with st.chat_message("assistant"):
-        with st.spinner("Buscando respuesta..."):
-            respuesta = responder_pregunta(pregunta)
-        st.markdown(respuesta)
+    pregunta = st.chat_input("Escribe tu pregunta")
 
-    st.session_state.historial.append({"role": "assistant", "content": respuesta})
+    if pregunta:
+        st.session_state.historial.append({"role": "user", "content": pregunta})
+
+        with chat_container:
+            with st.chat_message("user"):
+                st.markdown(pregunta)
+
+            with st.chat_message("assistant"):
+                with st.spinner("Buscando respuesta..."):
+                    respuesta = responder_pregunta(pregunta)
+                st.markdown(respuesta)
+
+        st.session_state.historial.append({"role": "assistant", "content": respuesta})
+
+with tab2:
+    st.write("Aquí podrás gestionar tus archivos.")
