@@ -83,13 +83,28 @@ with tab1:
 with tab2:
     st.write("Aquí podrás gestionar tus archivos PDF.")
 
+    st.markdown(
+        """
+        <style>
+        [data-testid="stFileUploader"] small {display: none;}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     uploaded_files = st.file_uploader(
-        "Selecciona uno o varios archivos PDF",
+        "📂 Selecciona o arrastra uno o varios archivos PDF",
         type=["pdf"],
         accept_multiple_files=True,
     )
 
     if uploaded_files:
+        for archivo in uploaded_files:
+            size_mb = archivo.size / (1024 * 1024)
+            if size_mb > 200:
+                st.error(f"El archivo **{archivo.name}** pesa {size_mb:.1f} MB. El límite es 200 MB.")
+                st.stop()
+
         archivos_guardados = guardar_archivos_subidos(uploaded_files)
 
         if archivos_guardados:
