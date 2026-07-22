@@ -6,6 +6,9 @@ st.set_page_config(page_title="Agente RAG", page_icon="🤖", layout="centered")
 if "historial" not in st.session_state:
     st.session_state.historial = []
 
+if "documentos_cargados" not in st.session_state:
+    st.session_state.documentos_cargados = []
+
 
 def limpiar_historial():
     st.session_state.historial = []
@@ -48,4 +51,21 @@ with tab1:
         st.session_state.historial.append({"role": "assistant", "content": respuesta})
 
 with tab2:
-    st.write("Aquí podrás gestionar tus archivos.")
+    st.write("Aquí podrás gestionar tus archivos PDF.")
+
+    uploaded_files = st.file_uploader(
+        "Sube uno o varios archivos PDF",
+        type=["pdf"],
+        accept_multiple_files=True
+    )
+
+    if uploaded_files:
+        nombres_actuales = [archivo.name for archivo in uploaded_files]
+        st.session_state.documentos_cargados = nombres_actuales
+
+    if st.session_state.documentos_cargados:
+        st.subheader("Archivos cargados")
+        for nombre in st.session_state.documentos_cargados:
+            st.markdown(f"- {nombre}")
+    else:
+        st.info("Aún no has cargado documentos.")
