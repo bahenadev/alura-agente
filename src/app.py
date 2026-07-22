@@ -1,13 +1,11 @@
 import streamlit as st
 from agent import responder_pregunta
+from file_manager import guardar_archivos_subidos, listar_archivos_pdf
 
 st.set_page_config(page_title="Agente RAG", page_icon="🤖", layout="centered")
 
 if "historial" not in st.session_state:
     st.session_state.historial = []
-
-if "documentos_cargados" not in st.session_state:
-    st.session_state.documentos_cargados = []
 
 
 def limpiar_historial():
@@ -60,12 +58,18 @@ with tab2:
     )
 
     if uploaded_files:
-        nombres_actuales = [archivo.name for archivo in uploaded_files]
-        st.session_state.documentos_cargados = nombres_actuales
+        archivos_guardados = guardar_archivos_subidos(uploaded_files)
 
-    if st.session_state.documentos_cargados:
-        st.subheader("Archivos cargados")
-        for nombre in st.session_state.documentos_cargados:
-            st.markdown(f"- {nombre}")
+        if archivos_guardados:
+            st.success("Archivos guardados correctamente:")
+            for nombre in archivos_guardados:
+                st.markdown(f"- {nombre}")
+
+    archivos_en_disco = listar_archivos_pdf()
+
+    st.subheader("Archivos disponibles")
+    if archivos_en_disco:
+        for archivo in archivos_en_disco:
+            st.markdown(f"- {archivo.name}")
     else:
-        st.info("Aún no has cargado documentos.")
+        st.info("No hay archivos guardados en la carpeta docs.")
