@@ -8,21 +8,6 @@ def limpiar_historial():
 
 
 def chat_page():
-    st.markdown(
-        """
-        <style>
-        .block-container {
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        .st-key-chat_messages {
-            height: calc(100dvh - 220px) !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
     st.title("Asistente RAG")
 
     col_texto, col_boton = st.columns([5, 1], vertical_alignment="bottom")
@@ -37,7 +22,9 @@ def chat_page():
             use_container_width=True,
         )
 
-    with st.container(key="chat_messages", height=500):
+    historial_box = st.container(height=500, border=True)
+
+    with historial_box:
         for mensaje in st.session_state.historial:
             with st.chat_message(mensaje["role"]):
                 st.markdown(mensaje["content"])
@@ -66,8 +53,8 @@ def chat_page():
 
             st.rerun()
 
-    pregunta = st.chat_input("Escribe tu pregunta")
+    prompt = st.bottom.chat_input("Escribe tu pregunta")
 
-    if pregunta:
-        st.session_state.pending_question = pregunta
+    if prompt:
+        st.session_state.pending_question = prompt
         st.rerun()
