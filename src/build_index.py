@@ -7,18 +7,11 @@ from langchain_core.documents import Document
 
 from load_documents import load_all_documents, chunk_documents
 
-
 load_dotenv()
 
 COHERE_API_KEY = os.getenv("COHERE_API_KEY")
 CHROMA_PATH = "chroma_db"
 COLLECTION_NAME = "documentos_empresa"
-
-PDFS_PRUEBA = {
-    "backend.pdf",
-    "incidentes.pdf",
-    "onboarding.pdf",
-}
 
 
 def build_index():
@@ -26,16 +19,14 @@ def build_index():
         raise ValueError("No se encontró COHERE_API_KEY en el archivo .env")
 
     documents = load_all_documents()
-    print(f"Documentos cargados originalmente: {len(documents)}")
 
-    filtered_documents = [
-        doc for doc in documents
-        if doc["source"] in PDFS_PRUEBA
-    ]
-    print(f"Documentos usados para prueba: {len(filtered_documents)}")
+    if not documents:
+        raise ValueError("No se encontraron documentos válidos en la carpeta docs/")
 
-    chunks = chunk_documents(filtered_documents)
-    print(f"Chunks generados: {len(chunks)}")
+    chunks = chunk_documents(documents)
+
+    if not chunks:
+        raise ValueError("No se pudieron generar chunks a partir de los documentos")
 
     langchain_docs = [
         Document(
@@ -56,11 +47,6 @@ def build_index():
         persist_directory=CHROMA_PATH,
         collection_name=COLLECTION_NAME
     )
-
-    print("Índice vectorial creado correctamente.")
-    print(f"Ruta de persistencia: {CHROMA_PATH}")
-    print(f"Colección: {COLLECTION_NAME}")
-    print(f"PDFs usados: {', '.join(sorted(PDFS_PRUEBA))}")
 
 
 if __name__ == "__main__":
