@@ -1,3 +1,5 @@
+import re
+
 from langchain_cohere import ChatCohere
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -5,6 +7,15 @@ from retriever import buscar_contexto
 
 
 CHAT_MODEL = "command-r7b-12-2024"
+
+PATRON_SALUDO = re.compile(
+    r"^(hola|buenos\s+d[ií]as|buenas\s+tardes|buenas\s+noches|buen[a]?\s+d[ií]a|buena\s+tarde|buena\s+noche|qu[eé]\s+tal|saludos|hey|buenas)([\s\?,!;.:]*.*)?$",
+    re.IGNORECASE,
+)
+
+
+def _es_saludo(texto: str) -> bool:
+    return bool(PATRON_SALUDO.match(texto.strip()))
 
 
 def formatear_contexto(documentos) -> str:
@@ -27,6 +38,9 @@ def formatear_contexto(documentos) -> str:
 
 
 def responder_pregunta(pregunta: str) -> str:
+    if _es_saludo(pregunta):
+        return "¡Hola! Soy tu asistente de documentos internos. Hazme una pregunta sobre los documentos y con gusto te ayudaré."
+
     documentos = buscar_contexto(pregunta)
 
     if not documentos:
@@ -40,12 +54,10 @@ def responder_pregunta(pregunta: str) -> str:
                 "system",
                 (
                     "Eres un asistente RAG para documentos internos de una empresa. "
-                    "Tu única fuente de información es el contexto proporcionado abajo.\n\n"
-                    "Reglas estrictas:\n"
-                    "- Si la pregunta del usuario no está relacionada con los documentos "
-                    "(por ejemplo saludos, conversación casual, preguntas personales), "
-                    "responde exactamente: 'No lo sé con la información disponible en los documentos.'\n"
-                    "- Si el contexto no contiene la respuesta a la pregunta, "
+                    "Responde únicamente con base en el contexto proporcionado.\n\n"
+                    "Reglas:\n"
+                    "- Si el contexto contiene la respuesta, responde de forma clara y breve.\n"
+                    "- Si el contexto no contiene la respuesta, "
                     "responde exactamente: 'No lo sé con la información disponible en los documentos.'\n"
                     "- No inventes información ni uses conocimiento externo.\n"
                     "- Siempre responde en español.\n"
@@ -56,12 +68,8 @@ def responder_pregunta(pregunta: str) -> str:
             (
                 "human",
                 (
-                    "Pregunta del usuario:\n{pregunta}\n\n"
-                    "Contexto recuperado:\n{contexto}\n\n"
-                    "Instrucciones:\n"
-                    "- Si el contexto está vacío o la pregunta no es sobre los documentos, "
-                    "responde únicamente 'No lo sé con la información disponible en los documentos.'\n"
-                    "- Si la respuesta está en el contexto, responde citando las fuentes."
+                    "Pregunta: {pregunta}\n\n"
+                    "Contexto:\n{contexto}"
                 ),
             ),
         ]
