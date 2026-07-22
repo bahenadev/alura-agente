@@ -40,11 +40,17 @@ def responder_pregunta(pregunta: str) -> str:
                 "system",
                 (
                     "Eres un asistente RAG para documentos internos de una empresa. "
-                    "Responde únicamente con base en el contexto recuperado. "
-                    "Si la respuesta no está claramente en el contexto, di: "
-                    "'No lo sé con la información disponible en los documentos.' "
-                    "Responde en español y al final agrega una sección breve llamada "
-                    "'Fuentes' listando los archivos utilizados."
+                    "Tu única fuente de información es el contexto proporcionado abajo.\n\n"
+                    "Reglas estrictas:\n"
+                    "- Si la pregunta del usuario no está relacionada con los documentos "
+                    "(por ejemplo saludos, conversación casual, preguntas personales), "
+                    "responde exactamente: 'No lo sé con la información disponible en los documentos.'\n"
+                    "- Si el contexto no contiene la respuesta a la pregunta, "
+                    "responde exactamente: 'No lo sé con la información disponible en los documentos.'\n"
+                    "- No inventes información ni uses conocimiento externo.\n"
+                    "- Siempre responde en español.\n"
+                    "- Al final agrega una sección llamada 'Fuentes' listando los archivos "
+                    "de los que obtuviste la información."
                 ),
             ),
             (
@@ -53,10 +59,9 @@ def responder_pregunta(pregunta: str) -> str:
                     "Pregunta del usuario:\n{pregunta}\n\n"
                     "Contexto recuperado:\n{contexto}\n\n"
                     "Instrucciones:\n"
-                    "- No inventes información.\n"
-                    "- Da una respuesta clara y breve.\n"
-                    "- Si aplica, menciona pasos o requisitos exactos.\n"
-                    "- Cierra con la sección 'Fuentes'."
+                    "- Si el contexto está vacío o la pregunta no es sobre los documentos, "
+                    "responde únicamente 'No lo sé con la información disponible en los documentos.'\n"
+                    "- Si la respuesta está en el contexto, responde citando las fuentes."
                 ),
             ),
         ]

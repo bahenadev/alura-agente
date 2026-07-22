@@ -10,6 +10,7 @@ COLLECTION_NAME = "rag_documents"
 
 EMBEDDING_MODEL = "embed-v4.0"
 TOP_K = 3
+MIN_SCORE = 0.3
 
 
 def buscar_contexto(pregunta: str, k: int = TOP_K):
@@ -21,5 +22,9 @@ def buscar_contexto(pregunta: str, k: int = TOP_K):
         embedding_function=embeddings,
     )
 
-    resultados = vectorstore.similarity_search(pregunta, k=k)
+    docs_with_scores = vectorstore.similarity_search_with_relevance_scores(
+        pregunta, k=k
+    )
+
+    resultados = [doc for doc, score in docs_with_scores if score >= MIN_SCORE]
     return resultados
