@@ -1,11 +1,15 @@
 import streamlit as st
 
 from agent import responder_pregunta
-from build_index import build_index
+from build_index import (
+    build_index,
+    hay_cambios_pendientes,
+    obtener_resumen_indexacion,
+)
 from file_manager import (
     guardar_archivos_subidos,
     listar_archivos_pdf,
-    eliminar_archivo_pdf
+    eliminar_archivo_pdf,
 )
 
 st.set_page_config(page_title="Agente RAG", page_icon="🤖", layout="centered")
@@ -63,7 +67,7 @@ with tab1:
             st.markdown(pregunta)
 
         with st.chat_message("assistant"):
-            with st.spinner("Buscando respuesta..."):
+            with st.spinner("Buscando respuesta...", show_time=True):
                 try:
                     respuesta = responder_pregunta(pregunta)
                 except Exception as e:
@@ -88,6 +92,7 @@ with tab2:
         if archivos_guardados:
             st.session_state.mensaje_documentos = "Archivos guardados correctamente."
             st.session_state.tipo_mensaje_documentos = "success"
+            st.session_state.mostrar_confirmacion_embeddings = False
 
     if st.session_state.mensaje_documentos:
         if st.session_state.tipo_mensaje_documentos == "success":
@@ -119,6 +124,7 @@ with tab2:
                         st.session_state.mensaje_documentos = f"No se pudo eliminar: {archivo.name}"
                         st.session_state.tipo_mensaje_documentos = "error"
 
+                    st.session_state.mostrar_confirmacion_embeddings = False
                     st.rerun()
     else:
         st.info("No hay archivos guardados en la carpeta docs.")
@@ -127,16 +133,39 @@ with tab2:
     st.subheader("Embeddings")
 
     if archivos_en_disco:
+        resumen = obtener_resumen_indexacion()
+        cambios_pendientes = hay_cambios_pendientes()
+
+        if resumen["inicializado"]:
+            st.caption(
+                f"Última indexación: {resumen['total_archivos_indexados']} archivo(s) registrados."
+            )
+        else:
+            st.caption("Aún no existe una indexación previa.")
+
+        if cambios_pendientes:
+            st.warning(
+                "Se detectaron cambios en los documentos. "
+                "Puedes preparar embeddings para actualizar el índice.",
+                icon="⚠️"
+            )
+        else:
+            st.info(
+                "No hay cambios en los documentos desde la última indexación. "
+                "Se bloquea la ejecución para evitar reprocesamiento innecesario."
+            )
+
         st.button(
             "Preparar embeddings",
             on_click=mostrar_confirmacion_embeddings,
+            disabled=not cambios_pendientes,
             use_container_width=True
         )
 
-        if st.session_state.mostrar_confirmacion_embeddings:
+        if st.session_state.mostrar_confirmacion_embeddings and cambios_pendientes:
             st.warning(
-                "Esta acción procesará todos los PDFs cargados para generar embeddings. "
-                "Puede tardar un poco y actualizar el índice vectorial actual.",
+                "Esta acción procesará los documentos PDF actuales para actualizar el índice vectorial. "
+                "Solo se ejecuta cuando hay cambios detectados y puede tardar varios segundos.",
                 icon="⚠️"
             )
 
@@ -145,11 +174,12 @@ with tab2:
             with col_confirmar:
                 if st.button("Sí, continuar", use_container_width=True):
                     try:
-                        with st.spinner("Generando embeddings e indexando documentos..."):
-                            build_index()
+                        with st.spinner("Generando embeddings e indexando documentos...", show_time=True):
+                            resultado = build_index()
 
                         st.session_state.mensaje_documentos = (
-                            "Embeddings generados correctamente para todos los PDFs cargados."
+                            "Embeddings generados correctamente. "
+                            f"Archivos procesados: {resultado['archivos_procesados']}."
                         )
                         st.session_state.tipo_mensaje_documentos = "success"
                     except Exception as e:

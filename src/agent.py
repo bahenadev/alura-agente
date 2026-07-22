@@ -1,76 +1,95 @@
-import os
-from dotenv import load_dotenv
-from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_cohere import ChatCohere
-from retriever import buscar_contexto
+from pathlib import Path
 
-load_dotenv()
-
-PROMPT_SISTEMA = """
-Eres un asistente para responder preguntas sobre documentos internos de una empresa.
-
-Debes seguir estas reglas estrictamente:
-1. Responde únicamente con información que aparezca en el contexto proporcionado.
-2. No inventes datos ni completes información con conocimiento externo.
-3. Si la respuesta no está en el contexto, responde exactamente:
-No lo sé con la información disponible.
-4. Al final de tu respuesta agrega una línea con este formato:
-Fuente: <nombre_del_archivo>
-5. Sé claro, breve y directo.
-""".strip()
+from langchain_chroma import Chroma
+from langchain_cohere import ChatCohere, CohereEmbeddings
+from langchain_core.prompts import ChatPromptTemplate
 
 
-def formatear_contexto(documentos):
+BASE_DIR = Path(__file__).resolve().parent
+CHROMA_DIR = BASE_DIR / "chroma_db"
+COLLECTION_NAME = "rag_documents"
+
+EMBEDDING_MODEL = "embed-v4.0"
+CHAT_MODEL = "command-r7b-12-2024"
+TOP_K = 3
+
+
+def buscar_contexto(pregunta: str, k: int = TOP_K):
+    embeddings = CohereEmbeddings(model=EMBEDDING_MODEL)
+
+    vectorstore = Chroma(
+        collection_name=COLLECTION_NAME,
+        persist_directory=str(CHROMA_DIR),
+        embedding_function=embeddings,
+    )
+
+    resultados = vectorstore.similarity_search(pregunta, k=k)
+    return resultados
+
+
+def formatear_contexto(documentos) -> str:
     bloques = []
 
     for i, doc in enumerate(documentos, start=1):
-        fuente = doc.metadata.get("source", "Sin fuente")
-        chunk_id = doc.metadata.get("chunk_id", "Sin chunk_id")
+        fuente = doc.metadata.get("source_file", "Fuente desconocida")
+        pagina = doc.metadata.get("page", "N/D")
         contenido = doc.page_content.strip()
 
-        bloque = f"""
-Fragmento {i}
-Fuente: {fuente}
-Chunk ID: {chunk_id}
-Contenido:
-{contenido}
-""".strip()
-
+        bloque = (
+            f"[Fragmento {i}]\n"
+            f"Fuente: {fuente}\n"
+            f"Página: {pagina}\n"
+            f"Contenido:\n{contenido}"
+        )
         bloques.append(bloque)
 
-    return "\n\n---\n\n".join(bloques)
+    return "\n\n".join(bloques)
 
 
-def responder_pregunta(pregunta: str):
-    documentos = buscar_contexto(pregunta, k=3)
+def responder_pregunta(pregunta: str) -> str:
+    documentos = buscar_contexto(pregunta)
+
+    if not documentos:
+        return "No encontré contexto suficiente en la base documental."
+
     contexto = formatear_contexto(documentos)
 
-    llm = ChatCohere(
-    model="command-r-plus-08-2024",
-    cohere_api_key=os.getenv("COHERE_API_KEY"),
-    temperature=0
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                (
+                    "Eres un asistente RAG para documentos internos de una empresa. "
+                    "Responde únicamente con base en el contexto recuperado. "
+                    "Si la respuesta no está claramente en el contexto, di: "
+                    "'No lo sé con la información disponible en los documentos.' "
+                    "Responde en español y al final agrega una sección breve llamada "
+                    "'Fuentes' listando los archivos utilizados."
+                ),
+            ),
+            (
+                "human",
+                (
+                    "Pregunta del usuario:\n{pregunta}\n\n"
+                    "Contexto recuperado:\n{contexto}\n\n"
+                    "Instrucciones:\n"
+                    "- No inventes información.\n"
+                    "- Da una respuesta clara y breve.\n"
+                    "- Si aplica, menciona pasos o requisitos exactos.\n"
+                    "- Cierra con la sección 'Fuentes'."
+                ),
+            ),
+        ]
     )
 
-    mensajes = [
-        SystemMessage(content=PROMPT_SISTEMA),
-        HumanMessage(
-            content=f"""
-Contexto:
-{contexto}
+    llm = ChatCohere(model=CHAT_MODEL, temperature=0)
 
-Pregunta:
-{pregunta}
-""".strip()
-        )
-    ]
+    chain = prompt | llm
+    respuesta = chain.invoke(
+        {
+            "pregunta": pregunta,
+            "contexto": contexto,
+        }
+    )
 
-    respuesta = llm.invoke(mensajes)
     return respuesta.content
-
-
-if __name__ == "__main__":
-    pregunta = "¿Cuál es tu comida favorita?"
-    respuesta = responder_pregunta(pregunta)
-
-    print("\nRespuesta:\n")
-    print(respuesta)
