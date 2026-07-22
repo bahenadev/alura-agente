@@ -85,8 +85,6 @@ with tab1:
         with st.chat_message(mensaje["role"]):
             st.markdown(mensaje["content"])
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
     pregunta = st.chat_input("Escribe tu pregunta")
 
     if pregunta:
@@ -105,6 +103,8 @@ with tab1:
             st.markdown(respuesta)
 
         st.session_state.historial.append({"role": "assistant", "content": respuesta})
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 with tab2:
     st.write("Aquí podrás gestionar tus archivos PDF.")
