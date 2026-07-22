@@ -2,6 +2,29 @@
 
 Asistente de问答 basado en Retrieval-Augmented Generation (RAG) para consultar documentos internos de la empresa. Permite subir archivos PDF, generar embeddings vectoriales y hacer preguntas en lenguaje natural que el agente responde utilizando exclusivamente el contenido de los documentos indexados.
 
+## Despliegue en OCI (Evidencia)
+
+**Instancia:** oci-free-1
+**Estado:** En ejecución
+**IP Pública:** 163.192.159.18
+**IP Privada:** 10.0.0.225
+**Shape:** VM.Standard.A1.Flex (1 OCPU / 6 GB RAM)
+**Availability Domain:** AD-1
+**Fault Domain:** FD-1
+**Fecha de creación:** 19 jul 2026, 21:07:46 UTC
+
+**URL de la app:** [http://163.192.159.18:8501](http://163.192.159.18:8501)
+
+### Captura del despliegue
+
+<!-- Pegar aquí la captura de pantalla de la consola OCI mostrando la instancia en ejecución -->
+![Evidencia de despliegue en OCI](docs/evidencia-oci.png)
+
+### Captura de la app funcionando
+
+<!-- Pegar aquí la captura de pantalla de la app en el navegador -->
+![App Asistente RAG funcionando](docs/evidencia-app.png)
+
 ## Arquitectura
 
 ```
