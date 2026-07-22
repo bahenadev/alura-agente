@@ -23,7 +23,7 @@ def cancelar_confirmacion_embeddings():
     st.session_state.tipo_mensaje_documentos = "info"
 
 
-def render():
+def docs_page():
     st.write("Aquí podrás gestionar tus archivos PDF.")
 
     uploaded_files = st.file_uploader(

@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from chat_page import render as chat_page
-from docs_page import render as docs_page
+from chat_page import chat_page
+from docs_page import docs_page
 
 for key, default in [
     ("historial", []),

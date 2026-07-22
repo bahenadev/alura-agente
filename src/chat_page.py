@@ -7,7 +7,7 @@ def limpiar_historial():
     st.session_state.historial = []
 
 
-def render():
+def chat_page():
     st.markdown(
         """
         <style>
