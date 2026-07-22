@@ -83,24 +83,29 @@ with tab1:
             with st.chat_message(mensaje["role"]):
                 st.markdown(mensaje["content"])
 
+        if "pending_question" in st.session_state:
+            pregunta_pendiente = st.session_state.pop("pending_question")
+
+            with st.chat_message("user"):
+                st.markdown(pregunta_pendiente)
+
+            with st.chat_message("assistant"):
+                with st.spinner("Buscando respuesta...", show_time=True):
+                    try:
+                        respuesta = responder_pregunta(pregunta_pendiente)
+                    except Exception as e:
+                        respuesta = f"Ocurrió un error al generar la respuesta: {e}"
+
+                st.markdown(respuesta)
+
+            st.session_state.historial.append({"role": "user", "content": pregunta_pendiente})
+            st.session_state.historial.append({"role": "assistant", "content": respuesta})
+
     pregunta = st.chat_input("Escribe tu pregunta")
 
     if pregunta:
-        st.session_state.historial.append({"role": "user", "content": pregunta})
-
-        with st.chat_message("user"):
-            st.markdown(pregunta)
-
-        with st.chat_message("assistant"):
-            with st.spinner("Buscando respuesta...", show_time=True):
-                try:
-                    respuesta = responder_pregunta(pregunta)
-                except Exception as e:
-                    respuesta = f"Ocurrió un error al generar la respuesta: {e}"
-
-            st.markdown(respuesta)
-
-        st.session_state.historial.append({"role": "assistant", "content": respuesta})
+        st.session_state.pending_question = pregunta
+        st.rerun()
 
 with tab2:
     st.write("Aquí podrás gestionar tus archivos PDF.")
