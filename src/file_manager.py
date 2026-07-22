@@ -1,6 +1,6 @@
 from pathlib import Path
 
-DOCS_DIR = Path(__file__).resolve().parent.parent / "docs"
+DOCS_DIR = Path(__file__).resolve().parent.parent / "docs" / "pdfs"
 
 
 def asegurar_directorio_docs():

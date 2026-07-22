@@ -10,7 +10,7 @@ from load_documents import load_and_chunk_documents
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DOCS_DIR = BASE_DIR.parent / "docs"
+DOCS_DIR = BASE_DIR.parent / "docs" / "pdfs"
 CHROMA_DIR = BASE_DIR / "chroma_db"
 STATE_DIR = BASE_DIR / ".index_state"
 MANIFEST_PATH = STATE_DIR / "manifest.json"
