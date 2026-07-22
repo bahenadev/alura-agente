@@ -83,10 +83,30 @@ with tab1:
 with tab2:
     st.write("Aquí podrás gestionar tus archivos PDF.")
 
+    st.markdown(
+        """
+        <style>
+        [data-testid="stFileUploader"] section {
+            border: 2px dashed #888;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            background: #fafafa;
+        }
+        [data-testid="stFileUploader"] section:hover {
+            border-color: #ff4b4b;
+            background: #fff5f5;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     uploaded_files = st.file_uploader(
-        "Sube uno o varios archivos PDF",
+        "Arrastra tus PDFs aquí o haz clic para seleccionar",
         type=["pdf"],
-        accept_multiple_files=True
+        accept_multiple_files=True,
+        help="Formatos aceptados: PDF",
     )
 
     if uploaded_files:
