@@ -8,6 +8,23 @@ def limpiar_historial():
 
 
 def chat_page():
+    st.markdown(
+        """
+        <style>
+        .block-container {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        .st-key-chat_messages {
+            height: calc(100dvh - 220px) !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.title("Asistente RAG")
+
     col_texto, col_boton = st.columns([5, 1], vertical_alignment="bottom")
 
     with col_texto:
@@ -19,17 +36,6 @@ def chat_page():
             on_click=limpiar_historial,
             use_container_width=True,
         )
-
-    st.markdown(
-        """
-        <style>
-        .st-key-chat_messages {
-            height: calc(100dvh - 200px) !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
     with st.container(key="chat_messages", height=500):
         for mensaje in st.session_state.historial:
