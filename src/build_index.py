@@ -5,8 +5,8 @@ from pathlib import Path
 import chromadb
 from langchain_chroma import Chroma
 from langchain_cohere import CohereEmbeddings
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from load_documents import load_and_chunk_documents
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -17,8 +17,6 @@ MANIFEST_PATH = STATE_DIR / "manifest.json"
 COLLECTION_NAME = "rag_documents"
 
 EMBEDDING_MODEL = "embed-v4.0"
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 150
 
 
 def _asegurar_directorios():
@@ -161,32 +159,6 @@ def hay_cambios_pendientes() -> bool:
     return estado["permitir_embedding"]
 
 
-def _cargar_y_fragmentar_documentos():
-    archivos_pdf = sorted(DOCS_DIR.glob("*.pdf"))
-
-    if not archivos_pdf:
-        raise ValueError("No hay archivos PDF en la carpeta docs.")
-
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE,
-        chunk_overlap=CHUNK_OVERLAP
-    )
-
-    documentos_fragmentados = []
-
-    for archivo in archivos_pdf:
-        loader = PyPDFLoader(str(archivo))
-        documentos = loader.load()
-
-        for doc in documentos:
-            doc.metadata["source_file"] = archivo.name
-
-        chunks = splitter.split_documents(documentos)
-        documentos_fragmentados.extend(chunks)
-
-    return archivos_pdf, documentos_fragmentados
-
-
 def build_index() -> dict:
     _asegurar_directorios()
 
@@ -202,7 +174,7 @@ def build_index() -> dict:
             "chunks_generados": 0,
         }
 
-    archivos_pdf, documentos_fragmentados = _cargar_y_fragmentar_documentos()
+    archivos_pdf, documentos_fragmentados = load_and_chunk_documents()
 
     embeddings = CohereEmbeddings(model=EMBEDDING_MODEL)
 
