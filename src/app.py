@@ -1,5 +1,6 @@
 import streamlit as st
 from dotenv import load_dotenv
+from uuid import uuid4
 
 load_dotenv()
 
@@ -28,6 +29,9 @@ if "tipo_mensaje_documentos" not in st.session_state:
 
 if "mostrar_confirmacion_embeddings" not in st.session_state:
     st.session_state.mostrar_confirmacion_embeddings = False
+
+if "upload_key" not in st.session_state:
+    st.session_state.upload_key = "uploader"
 
 
 def limpiar_historial():
@@ -96,6 +100,7 @@ with tab2:
         "📂 Selecciona o arrastra uno o varios archivos PDF",
         type=["pdf"],
         accept_multiple_files=True,
+        key=st.session_state.upload_key,
     )
 
     if uploaded_files:
@@ -108,6 +113,7 @@ with tab2:
         archivos_guardados = guardar_archivos_subidos(uploaded_files)
 
         if archivos_guardados:
+            st.session_state.upload_key = f"uploader_{uuid4().hex}"
             st.session_state.mensaje_documentos = "Archivos guardados correctamente."
             st.session_state.tipo_mensaje_documentos = "success"
             st.session_state.mostrar_confirmacion_embeddings = False
