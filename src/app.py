@@ -56,13 +56,18 @@ with tab1:
     st.markdown(
         """
         <style>
+        [data-testid="stAppViewContainer"],
+        [data-testid="stAppViewContainer"] > [data-testid="stApp"] {
+            height: 100vh !important;
+            overflow: hidden !important;
+        }
+
         .st-key-chat_history {
-            max-height: 55vh;
-            min-height: 200px;
-            overflow-y: auto;
+            height: calc(100vh - 280px) !important;
+            overflow-y: auto !important;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            padding: 0.75rem 0.75rem 0;
+            padding: 0.75rem;
             margin-bottom: 0.5rem;
         }
         </style>
