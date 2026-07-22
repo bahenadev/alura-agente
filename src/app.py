@@ -14,9 +14,28 @@ if "historial" not in st.session_state:
 if "mensaje_documentos" not in st.session_state:
     st.session_state.mensaje_documentos = ""
 
+if "mostrar_confirmacion_embeddings" not in st.session_state:
+    st.session_state.mostrar_confirmacion_embeddings = False
+
 
 def limpiar_historial():
     st.session_state.historial = []
+
+
+def mostrar_confirmacion_embeddings():
+    st.session_state.mostrar_confirmacion_embeddings = True
+
+
+def cancelar_confirmacion_embeddings():
+    st.session_state.mostrar_confirmacion_embeddings = False
+    st.session_state.mensaje_documentos = "Proceso de embeddings cancelado."
+
+
+def confirmar_embeddings():
+    st.session_state.mostrar_confirmacion_embeddings = False
+    st.session_state.mensaje_documentos = (
+        "Confirmación recibida. El siguiente paso será conectar aquí la generación real de embeddings."
+    )
 
 
 st.title("Agente RAG")
@@ -95,3 +114,40 @@ with tab2:
                     st.rerun()
     else:
         st.info("No hay archivos guardados en la carpeta docs.")
+
+    st.divider()
+
+    st.subheader("Embeddings")
+
+    if archivos_en_disco:
+        st.button(
+            "Preparar embeddings",
+            on_click=mostrar_confirmacion_embeddings,
+            use_container_width=True
+        )
+
+        if st.session_state.mostrar_confirmacion_embeddings:
+            st.warning(
+                "Esta acción procesará los documentos cargados para generar embeddings. "
+                "Dependiendo del número y tamaño de los archivos, puede consumir tokens, "
+                "tardar un poco y reemplazar el índice vectorial actual.",
+                icon="⚠️"
+            )
+
+            col_confirmar, col_cancelar = st.columns(2)
+
+            with col_confirmar:
+                st.button(
+                    "Sí, continuar",
+                    on_click=confirmar_embeddings,
+                    use_container_width=True
+                )
+
+            with col_cancelar:
+                st.button(
+                    "Cancelar",
+                    on_click=cancelar_confirmacion_embeddings,
+                    use_container_width=True
+                )
+    else:
+        st.info("Sube al menos un PDF antes de preparar embeddings.")
