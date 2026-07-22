@@ -5,7 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DOCS_DIR = BASE_DIR / "docs"
+DOCS_DIR = BASE_DIR.parent / "docs"
 
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 150
