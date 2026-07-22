@@ -147,11 +147,18 @@ with tab2:
             st.caption("Aún no existe una indexación previa.")
 
         if cambios_pendientes:
-            st.warning(
-                "Se detectaron cambios en los documentos. "
-                "Puedes preparar embeddings para actualizar el índice.",
-                icon="⚠️"
-            )
+            if resumen["inicializado"]:
+                st.warning(
+                    "Se detectaron cambios en los documentos. "
+                    "Puedes preparar embeddings para actualizar el índice.",
+                    icon="⚠️"
+                )
+            else:
+                st.warning(
+                    "Aún no se ha generado el índice vectorial. "
+                    "Prepara los embeddings para poder hacer preguntas.",
+                    icon="⚠️"
+                )
         else:
             st.info(
                 "No hay cambios en los documentos desde la última indexación. "
@@ -166,11 +173,18 @@ with tab2:
         )
 
         if st.session_state.mostrar_confirmacion_embeddings and cambios_pendientes:
-            st.warning(
-                "Esta acción procesará los documentos PDF actuales para actualizar el índice vectorial. "
-                "Solo se ejecuta cuando hay cambios detectados y puede tardar varios segundos.",
-                icon="⚠️"
-            )
+            if resumen["inicializado"]:
+                st.warning(
+                    "Esta acción actualizará el índice vectorial con los documentos actuales. "
+                    "Se reemplazará el contenido anterior. Puede tardar varios segundos.",
+                    icon="⚠️"
+                )
+            else:
+                st.warning(
+                    "Esta acción generará embeddings a partir de tus documentos PDF "
+                    "y creará el índice vectorial. Puede tardar varios segundos.",
+                    icon="⚠️"
+                )
 
             col_confirmar, col_cancelar = st.columns(2)
 
