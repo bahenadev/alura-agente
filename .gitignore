@@ -6,3 +6,12 @@ chromadb/
 chroma_db/
 .venv/
 src/chroma_db/
+
+# Build artifacts
+src/.index_state/
+*.sqlite3
+*.log
+
+# IDE
+.idea/
+.vscode/
