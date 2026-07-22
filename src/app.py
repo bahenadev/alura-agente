@@ -56,7 +56,7 @@ with tab1:
     st.markdown(
         """
         <style>
-        .st-key-chat_area {
+        .st-key-chat_history {
             max-height: 55vh;
             min-height: 200px;
             overflow-y: auto;
@@ -78,29 +78,29 @@ with tab1:
     with col_boton:
         st.button("Limpiar", on_click=limpiar_historial, use_container_width=True)
 
-    with st.container(key="chat_area"):
+    with st.container(key="chat_history"):
         for mensaje in st.session_state.historial:
             with st.chat_message(mensaje["role"]):
                 st.markdown(mensaje["content"])
 
-        pregunta = st.chat_input("Escribe tu pregunta")
+    pregunta = st.chat_input("Escribe tu pregunta")
 
-        if pregunta:
-            st.session_state.historial.append({"role": "user", "content": pregunta})
+    if pregunta:
+        st.session_state.historial.append({"role": "user", "content": pregunta})
 
-            with st.chat_message("user"):
-                st.markdown(pregunta)
+        with st.chat_message("user"):
+            st.markdown(pregunta)
 
-            with st.chat_message("assistant"):
-                with st.spinner("Buscando respuesta...", show_time=True):
-                    try:
-                        respuesta = responder_pregunta(pregunta)
-                    except Exception as e:
-                        respuesta = f"Ocurrió un error al generar la respuesta: {e}"
+        with st.chat_message("assistant"):
+            with st.spinner("Buscando respuesta...", show_time=True):
+                try:
+                    respuesta = responder_pregunta(pregunta)
+                except Exception as e:
+                    respuesta = f"Ocurrió un error al generar la respuesta: {e}"
 
-                st.markdown(respuesta)
+            st.markdown(respuesta)
 
-            st.session_state.historial.append({"role": "assistant", "content": respuesta})
+        st.session_state.historial.append({"role": "assistant", "content": respuesta})
 
 with tab2:
     st.write("Aquí podrás gestionar tus archivos PDF.")
