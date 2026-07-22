@@ -21,21 +21,8 @@ st.set_page_config(page_title="Agente RAG", page_icon="🤖", layout="centered")
 st.markdown(
     """
     <style>
-    [data-testid="stAppViewContainer"] {
-        max-height: 100vh !important;
-        overflow: hidden !important;
-    }
-    [data-testid="stMain"] {
-        max-height: calc(100vh - 60px) !important;
-        overflow: hidden !important;
-    }
-    [data-testid="block-container"] {
-        max-height: calc(100vh - 60px) !important;
-        overflow: hidden !important;
-        padding-top: 1rem !important;
-    }
     .st-key-chat_scroll {
-        max-height: calc(100vh - 240px) !important;
+        height: calc(100vh - 240px) !important;
         overflow-y: auto !important;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
