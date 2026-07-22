@@ -30,7 +30,7 @@ def responder_pregunta(pregunta: str) -> str:
     documentos = buscar_contexto(pregunta)
 
     if not documentos:
-        return "No encontré contexto suficiente en la base documental."
+        return "No lo sé con la información disponible en los documentos."
 
     contexto = formatear_contexto(documentos)
 
