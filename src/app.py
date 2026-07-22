@@ -13,14 +13,16 @@ def limpiar_historial():
 
 st.title("Agente RAG")
 
-with st.sidebar:
-    st.subheader("Controles")
-    st.button("Limpiar conversación", on_click=limpiar_historial)
-
 tab1, tab2 = st.tabs(["Chat", "Documentos"])
 
 with tab1:
-    st.write("Haz una pregunta sobre los documentos internos.")
+    col_texto, col_boton = st.columns([5, 1], vertical_alignment="bottom")
+
+    with col_texto:
+        st.write("Haz una pregunta sobre los documentos internos.")
+
+    with col_boton:
+        st.button("Limpiar", on_click=limpiar_historial, use_container_width=True)
 
     chat_container = st.container()
 
