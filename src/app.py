@@ -111,6 +111,7 @@ with tab2:
             st.session_state.mensaje_documentos = "Archivos guardados correctamente."
             st.session_state.tipo_mensaje_documentos = "success"
             st.session_state.mostrar_confirmacion_embeddings = False
+            st.rerun()
 
     if st.session_state.mensaje_documentos:
         if st.session_state.tipo_mensaje_documentos == "success":
