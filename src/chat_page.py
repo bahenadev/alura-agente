@@ -8,10 +8,10 @@ def limpiar_historial():
 
 
 def chat_page():
-    col_titulo, col_boton = st.columns([5, 1], vertical_alignment="center")
+    col_texto, col_boton = st.columns([5, 1], vertical_alignment="bottom")
 
-    with col_titulo:
-        st.title("Asistente RAG")
+    with col_texto:
+        st.write("Haz una pregunta sobre los documentos internos.")
 
     with col_boton:
         st.button(

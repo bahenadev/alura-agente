@@ -18,6 +18,8 @@ for key, default in [
 
 st.set_page_config(page_title="Agente RAG", page_icon="🤖", layout="centered")
 
+st.sidebar.title("Asistente RAG")
+
 pg = st.navigation(
     {
         "Navegación": [
