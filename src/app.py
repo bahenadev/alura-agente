@@ -1,5 +1,7 @@
 import streamlit as st
+
 from agent import responder_pregunta
+from build_index import build_index
 from file_manager import (
     guardar_archivos_subidos,
     listar_archivos_pdf,
@@ -13,6 +15,9 @@ if "historial" not in st.session_state:
 
 if "mensaje_documentos" not in st.session_state:
     st.session_state.mensaje_documentos = ""
+
+if "tipo_mensaje_documentos" not in st.session_state:
+    st.session_state.tipo_mensaje_documentos = "success"
 
 if "mostrar_confirmacion_embeddings" not in st.session_state:
     st.session_state.mostrar_confirmacion_embeddings = False
@@ -28,14 +33,8 @@ def mostrar_confirmacion_embeddings():
 
 def cancelar_confirmacion_embeddings():
     st.session_state.mostrar_confirmacion_embeddings = False
-    st.session_state.mensaje_documentos = "Proceso de embeddings cancelado."
-
-
-def confirmar_embeddings():
-    st.session_state.mostrar_confirmacion_embeddings = False
-    st.session_state.mensaje_documentos = (
-        "Confirmación recibida. El siguiente paso será conectar aquí la generación real de embeddings."
-    )
+    st.session_state.mensaje_documentos = "La preparación de embeddings fue cancelada."
+    st.session_state.tipo_mensaje_documentos = "info"
 
 
 st.title("Agente RAG")
@@ -51,26 +50,26 @@ with tab1:
     with col_boton:
         st.button("Limpiar", on_click=limpiar_historial, use_container_width=True)
 
-    chat_container = st.container()
-
-    with chat_container:
-        for mensaje in st.session_state.historial:
-            with st.chat_message(mensaje["role"]):
-                st.markdown(mensaje["content"])
+    for mensaje in st.session_state.historial:
+        with st.chat_message(mensaje["role"]):
+            st.markdown(mensaje["content"])
 
     pregunta = st.chat_input("Escribe tu pregunta")
 
     if pregunta:
         st.session_state.historial.append({"role": "user", "content": pregunta})
 
-        with chat_container:
-            with st.chat_message("user"):
-                st.markdown(pregunta)
+        with st.chat_message("user"):
+            st.markdown(pregunta)
 
-            with st.chat_message("assistant"):
-                with st.spinner("Buscando respuesta..."):
+        with st.chat_message("assistant"):
+            with st.spinner("Buscando respuesta..."):
+                try:
                     respuesta = responder_pregunta(pregunta)
-                st.markdown(respuesta)
+                except Exception as e:
+                    respuesta = f"Ocurrió un error al generar la respuesta: {e}"
+
+            st.markdown(respuesta)
 
         st.session_state.historial.append({"role": "assistant", "content": respuesta})
 
@@ -88,13 +87,20 @@ with tab2:
 
         if archivos_guardados:
             st.session_state.mensaje_documentos = "Archivos guardados correctamente."
+            st.session_state.tipo_mensaje_documentos = "success"
 
     if st.session_state.mensaje_documentos:
-        st.success(st.session_state.mensaje_documentos)
+        if st.session_state.tipo_mensaje_documentos == "success":
+            st.success(st.session_state.mensaje_documentos)
+        elif st.session_state.tipo_mensaje_documentos == "error":
+            st.error(st.session_state.mensaje_documentos)
+        else:
+            st.info(st.session_state.mensaje_documentos)
 
     archivos_en_disco = listar_archivos_pdf()
 
     st.subheader("Archivos disponibles")
+
     if archivos_en_disco:
         for archivo in archivos_en_disco:
             col_nombre, col_boton = st.columns([5, 1], vertical_alignment="center")
@@ -108,15 +114,16 @@ with tab2:
 
                     if eliminado:
                         st.session_state.mensaje_documentos = f"Archivo eliminado: {archivo.name}"
+                        st.session_state.tipo_mensaje_documentos = "success"
                     else:
                         st.session_state.mensaje_documentos = f"No se pudo eliminar: {archivo.name}"
+                        st.session_state.tipo_mensaje_documentos = "error"
 
                     st.rerun()
     else:
         st.info("No hay archivos guardados en la carpeta docs.")
 
     st.divider()
-
     st.subheader("Embeddings")
 
     if archivos_en_disco:
@@ -128,20 +135,31 @@ with tab2:
 
         if st.session_state.mostrar_confirmacion_embeddings:
             st.warning(
-                "Esta acción procesará los documentos cargados para generar embeddings. "
-                "Dependiendo del número y tamaño de los archivos, puede consumir tokens, "
-                "tardar un poco y reemplazar el índice vectorial actual.",
+                "Esta acción procesará todos los PDFs cargados para generar embeddings. "
+                "Puede tardar un poco y actualizar el índice vectorial actual.",
                 icon="⚠️"
             )
 
             col_confirmar, col_cancelar = st.columns(2)
 
             with col_confirmar:
-                st.button(
-                    "Sí, continuar",
-                    on_click=confirmar_embeddings,
-                    use_container_width=True
-                )
+                if st.button("Sí, continuar", use_container_width=True):
+                    try:
+                        with st.spinner("Generando embeddings e indexando documentos..."):
+                            build_index()
+
+                        st.session_state.mensaje_documentos = (
+                            "Embeddings generados correctamente para todos los PDFs cargados."
+                        )
+                        st.session_state.tipo_mensaje_documentos = "success"
+                    except Exception as e:
+                        st.session_state.mensaje_documentos = (
+                            f"Ocurrió un error al generar embeddings: {e}"
+                        )
+                        st.session_state.tipo_mensaje_documentos = "error"
+
+                    st.session_state.mostrar_confirmacion_embeddings = False
+                    st.rerun()
 
             with col_cancelar:
                 st.button(
