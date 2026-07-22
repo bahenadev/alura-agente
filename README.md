@@ -1,6 +1,6 @@
 # Asistente RAG
 
-Asistente de问答 basado en Retrieval-Augmented Generation (RAG) para consultar documentos internos de la empresa. Permite subir archivos PDF, generar embeddings vectoriales y hacer preguntas en lenguaje natural que el agente responde utilizando exclusivamente el contenido de los documentos indexados.
+Asistente basado en Retrieval-Augmented Generation (RAG) para consultar documentos internos de la empresa. Permite subir archivos PDF, generar embeddings vectoriales y hacer preguntas en lenguaje natural que el agente responde utilizando exclusivamente el contenido de los documentos indexados.
 
 ## Despliegue en OCI (Evidencia)
 
@@ -18,12 +18,12 @@ Asistente de问答 basado en Retrieval-Augmented Generation (RAG) para consultar
 ### Captura del despliegue
 
 <!-- Pegar aquí la captura de pantalla de la consola OCI mostrando la instancia en ejecución -->
-![Evidencia de despliegue en OCI](docs/evidencia-oci.png)
+![Evidencia de despliegue en OCI](docs/images/evidencia-oci.png)
 
 ### Captura de la app funcionando
 
 <!-- Pegar aquí la captura de pantalla de la app en el navegador -->
-![App Asistente RAG funcionando](docs/evidencia-app.png)
+![App Asistente RAG funcionando](docs/images/evidencia-app.png)
 
 ## Arquitectura
 
