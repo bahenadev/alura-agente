@@ -9,24 +9,30 @@ st.write("Haz una pregunta sobre los documentos internos.")
 if "historial" not in st.session_state:
     st.session_state.historial = []
 
-pregunta = st.text_input("Escribe tu pregunta")
 
-if st.button("Preguntar"):
-    if pregunta.strip():
+def limpiar_historial():
+    st.session_state.historial = []
+
+
+with st.sidebar:
+    st.subheader("Controles")
+    st.button("Limpiar conversación", on_click=limpiar_historial)
+
+for mensaje in st.session_state.historial:
+    with st.chat_message(mensaje["role"]):
+        st.markdown(mensaje["content"])
+
+pregunta = st.chat_input("Escribe tu pregunta")
+
+if pregunta:
+    st.session_state.historial.append({"role": "user", "content": pregunta})
+
+    with st.chat_message("user"):
+        st.markdown(pregunta)
+
+    with st.chat_message("assistant"):
         with st.spinner("Buscando respuesta..."):
             respuesta = responder_pregunta(pregunta)
+        st.markdown(respuesta)
 
-        st.session_state.historial.append({
-            "pregunta": pregunta,
-            "respuesta": respuesta
-        })
-    else:
-        st.warning("Escribe una pregunta primero.")
-
-if st.session_state.historial:
-    st.subheader("Historial de conversación")
-
-    for item in reversed(st.session_state.historial):
-        st.markdown(f"**Tú:** {item['pregunta']}")
-        st.markdown(f"**Agente:** {item['respuesta']}")
-        st.divider()
+    st.session_state.historial.append({"role": "assistant", "content": respuesta})
