@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 from uuid import uuid4
 
@@ -12,6 +14,8 @@ from file_manager import (
     eliminar_archivo_pdf,
 )
 
+DOCS_PASSWORD = os.getenv("DOCS_PASSWORD", "")
+
 
 def mostrar_confirmacion_embeddings():
     st.session_state.mostrar_confirmacion_embeddings = True
@@ -23,9 +27,37 @@ def cancelar_confirmacion_embeddings():
     st.session_state.tipo_mensaje_documentos = "info"
 
 
+def _bloquear_acceso():
+    st.warning(
+        "🔒 Acceso restringido. Ingresa la contraseña para administrar documentos.",
+        icon="🔒",
+    )
+    st.stop()
+
+
 def docs_page():
     st.title("Asistente RAG")
     st.subheader("Documentos")
+
+    if not DOCS_PASSWORD:
+        _bloquear_acceso()
+
+    if not st.session_state.docs_authenticated:
+        clave = st.text_input(
+            "🔑 Contraseña de administrador",
+            type="password",
+            placeholder="Ingresa la contraseña",
+        )
+
+        if clave:
+            if clave == DOCS_PASSWORD:
+                st.session_state.docs_authenticated = True
+                st.rerun()
+            else:
+                st.error("Contraseña incorrecta.")
+                st.stop()
+        else:
+            _bloquear_acceso()
 
     uploaded_files = st.file_uploader(
         "📂 Selecciona o arrastra uno o varios archivos PDF",

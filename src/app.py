@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 from dotenv import load_dotenv
 
@@ -6,12 +8,15 @@ load_dotenv()
 from chat_page import chat_page
 from docs_page import docs_page
 
+DOCS_PASSWORD = os.getenv("DOCS_PASSWORD", "")
+
 for key, default in [
     ("historial", []),
     ("mensaje_documentos", ""),
     ("tipo_mensaje_documentos", "success"),
     ("mostrar_confirmacion_embeddings", False),
     ("upload_key", "uploader"),
+    ("docs_authenticated", False),
 ]:
     if key not in st.session_state:
         st.session_state[key] = default

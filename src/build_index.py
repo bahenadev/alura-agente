@@ -159,6 +159,37 @@ def hay_cambios_pendientes() -> bool:
     return estado["permitir_embedding"]
 
 
+def obtener_metadata_documentos() -> str:
+    _asegurar_directorios()
+
+    archivos_pdf = sorted(DOCS_DIR.glob("*.pdf"))
+
+    if not archivos_pdf:
+        return "No hay documentos indexados actualmente."
+
+    manifest_guardado = _leer_manifest_guardado()
+    info_base = _obtener_info_base_vectorial()
+
+    lineas = []
+
+    for archivo in archivos_pdf:
+        nombre = archivo.name
+        info = manifest_guardado.get(nombre, {})
+        size_kb = info.get("size_bytes", 0) / 1024
+        lineas.append(f"- {nombre} ({size_kb:.0f} KB)")
+
+    total_registros = info_base.get("cantidad_registros", 0)
+
+    resultado = (
+        f"Tengo indexados {len(archivos_pdf)} documento(s) PDF "
+        f"con {total_registros} fragmentos en total:\n\n"
+        + "\n".join(lineas)
+        + "\n\nPuedes preguntarme sobre el contenido de cualquiera de estos documentos."
+    )
+
+    return resultado
+
+
 def build_index() -> dict:
     _asegurar_directorios()
 
