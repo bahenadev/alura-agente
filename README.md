@@ -4,16 +4,15 @@ Asistente basado en Retrieval-Augmented Generation (RAG) para consultar document
 
 ## Despliegue en OCI (Evidencia)
 
-**Instancia:** oci-free-1
+**Instancia:** oci-alura-agente-1
 **Estado:** En ejecución
-**IP Pública:** 163.192.159.18
-**IP Privada:** 10.0.0.225
-**Shape:** VM.Standard.A1.Flex (1 OCPU / 6 GB RAM)
-**Availability Domain:** AD-1
-**Fault Domain:** FD-1
-**Fecha de creación:** 19 jul 2026, 21:07:46 UTC
+**IP Pública:** 129.159.182.199
+**Shape:** VM.Standard.E2.1.Micro (1 OCPU / 1 GB RAM)
+**Availability Domain:** AD-3
+**Fault Domain:** FD-2
+**Fecha de creación:** 23 jul 2026, 17:30:21 UTC
 
-**URL de la app:** [http://163.192.159.18:8501](http://163.192.159.18:8501)
+**URL de la app:** [http://129.159.182.199:8501/](http://129.159.182.199:8501/)
 
 ### Captura del despliegue
 
